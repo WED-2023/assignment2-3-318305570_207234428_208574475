@@ -1,4 +1,8 @@
 require("dotenv").config();
+// Uncaught Exception Handler
+process.on('uncaughtException', (error) => {
+  console.error('Uncaught Exception:', error);
+});
 //#region express configures
 var express = require("express");
 var path = require("path");
