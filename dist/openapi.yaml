@@ -2,20 +2,18 @@ openapi: 3.0.0
 info:
   title: Reciplease api
   description: API for recipes project
-  version: 1.0.1
+  version: 1.0.0
 servers:
-# local:
-- url: "http://127.0.0.1:3000"
-# remote:
-# - url: "http://132.72.65.211"
-  description: SwaggerHub API Auto Mocking hey
+- url: https://virtserver.swaggerhub.com/GILAGM/WED/1.0.0
+  description: SwaggerHub API Auto Mocking
+- url: http://localhost:3000
 tags:
 - name: Auth
   description: All authentication related routes
 - name: Users
   description: All the user's personal app info
 - name: Recipes
-  description: All reciepes general info
+  description: All recipes general info
 paths:
   /register:
     post:
@@ -24,7 +22,7 @@ paths:
       summary: A new user from the client is added to the server
       description: A JSON object contains all the details about the new user.
       requestBody:
-        description: Inventory item to add
+        description: User registration details
         content:
           application/json:
             schema:
@@ -34,13 +32,13 @@ paths:
         "201":
           description: A new user has been added
         "400":
-          description: wrong input parameters
+          description: Wrong input parameters or user already exists
   /login:
     post:
       tags:
       - Auth
-      summary: Login an exist user
-      description: An exist user login to the system
+      summary: Login an existing user
+      description: An existing user login to the system
       requestBody:
         content:
           application/json:
@@ -50,7 +48,7 @@ paths:
       responses:
         "200":
           description: |
-            User was found in the DB and authenitcated successfully. The session ID is returned in a cookie named `session`.  You should include this cookie in subsequent requests
+            User was found in the DB and authenticated successfully. The session ID is returned in a cookie named session. You should include this cookie in subsequent requests
           headers:
             Set-Cookie:
               style: simple
@@ -60,14 +58,16 @@ paths:
                 example: session=87s97sdhgf279293f8w0e9
         "401":
           description: Authentication failed
+        "409":
+          description: User already logged in
   /logout:
     post:
       tags:
-        - Auth
-      summary: logout a user from the system and delete his cookie
+      - Auth
+      summary: Logout a user from the system and delete his cookie
       responses:
         "200":
-          description: "the user has ben successfully logged out"
+          description: The user has been successfully logged out
   /users/favorites:
     get:
       tags:
@@ -76,7 +76,7 @@ paths:
       description: Get an array of recipes that were saved by a specific user
       responses:
         "200":
-          description: data about the user's favorites recipes returned
+          description: Data about the user's favorite recipes returned
           content:
             application/json:
               schema:
@@ -84,41 +84,117 @@ paths:
                 items:
                   $ref: '#/components/schemas/RecipePreview'
         "401":
-          description: user is not authorized
+          description: User is not authorized
       security:
       - cookieAuth: []
     post:
       tags:
       - Users
-      summary: save recipe in the favorites list of a user
-      description: save recipe in the favorites list of a user
+      summary: Save recipe in the favorites list of a user
+      description: Save recipe in the favorites list of a user
       requestBody:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                reciepeId:
-                  type: string
-                  description: reciepe's id which the user saved
-                  example: 716429
+              $ref: '#/components/schemas/users_favorites_body'
       responses:
         "200":
-          description: The Recipe successfully saved as favorite
+          description: The recipe successfully saved as favorite
         "401":
-          description: user is not authorized
+          description: User is not authorized
       security:
       - cookieAuth: []
-  /recipes/{recipeId}:
+  /users/recipes:
+    get:
+      tags:
+      - Users
+      summary: Return the user's own recipes
+      description: Get an array of recipes that were created by a specific user
+      responses:
+        "200":
+          description: Data about the user's own recipes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MyRecipeFullView'
+        "401":
+          description: User is not authorized
+      security:
+      - cookieAuth: []
+    post:
+      tags:
+      - Users
+      summary: Add a new recipe to the user's recipes
+      description: Add a new recipe to the user's recipes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MyRecipeFullView'
+        required: true
+      responses:
+        "201":
+          description: A new recipe has been added to user's recipes
+        "401":
+          description: User is not authorized
+      security:
+      - cookieAuth: []
+  /users/family-recipes:
+    get:
+      tags:
+      - Users
+      summary: Return the user's family recipes
+      description: Get an array of family recipes that were created by a specific user
+      responses:
+        "200":
+          description: Data about the user's family recipes returned
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+        "401":
+          description: User is not authorized
+      security:
+      - cookieAuth: []
+  /recipes/random:
     get:
       tags:
       - Recipes
-      summary: Return preview details on recipe by his ID
-      description: Return preview details on recipe by his ID
+      summary: Get random recipes
+      description: Return a set of random recipes
+      parameters:
+      - name: limit
+        in: query
+        description: Number of random recipes to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+          default: 5
+      responses:
+        "200":
+          description: A list of random recipes
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
+  /recipes/previewRecipe/{recipeId}:
+    get:
+      tags:
+      - Recipes
+      summary: Return preview details on recipe by its ID
+      description: Return preview details on recipe by its ID
       parameters:
       - name: recipeId
         in: path
-        description: recipe's id
+        description: Recipe's id
         required: true
         style: simple
         explode: false
@@ -126,13 +202,93 @@ paths:
           type: integer
       responses:
         "200":
-          description: data about the recipe
+          description: Data about the recipe
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/RecipePreview'
         "404":
-          description: recipeId is not exists
+          description: Recipe ID does not exist
+  /recipes/fullRecipe/{recipeId}:
+    get:
+      tags:
+      - Recipes
+      summary: Return full details on recipe by its ID
+      description: Return full details on recipe by its ID
+      parameters:
+      - name: recipeId
+        in: path
+        description: Recipe's id
+        required: true
+        style: simple
+        explode: false
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Data about the recipe
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecipeFullView'
+        "404":
+          description: Recipe ID does not exist
+  /recipes/search:
+    get:
+      tags:
+      - Recipes
+      summary: Search for recipes
+      description: Search for recipes based on query parameters
+      parameters:
+      - name: query
+        in: query
+        description: Search query
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: cuisine
+        in: query
+        description: Filter by cuisine type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: diet
+        in: query
+        description: Filter by diet type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: intolerance
+        in: query
+        description: Filter by intolerance type
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: limit
+        in: query
+        description: Number of results to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: integer
+      responses:
+        "200":
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecipePreview'
 components:
   schemas:
     User:
@@ -142,38 +298,32 @@ components:
           maxLength: 8
           minLength: 3
           type: string
-          description: username conatins between 3 to 8 letters only
+          description: Username contains between 3 to 8 letters only
           example: my_name
         firstname:
           type: string
-          description: user's first name
+          description: User's first name
           example: my_first_name
         lastname:
           type: string
-          description: user's last name
+          description: User's last name
           example: my_last_name
         country:
           type: string
-          description: user's country
+          description: User's country
           example: Israel
         password:
           maxLength: 10
           minLength: 5
           type: string
-          description: password conatins between 5 to 10 chars, at least one of them
-            is a number and a special char
+          description: "Password contains between 5 to 10 characters, at least one of them is a number and a special character"
           format: password
           example: my_name@12
         email:
           pattern: email
           type: string
-          description: user's email
+          description: User's email
           example: my_name12@gmail.com
-        # image-url:
-        #   pattern: URL
-        #   type: string
-        #   description: URL for the user's image
-        #   example: https://cloudinary.com/
       description: Model containing user info
     LoginScheme:
       type: object
@@ -182,11 +332,11 @@ components:
           maxLength: 8
           minLength: 3
           type: string
-          description: username conatins letters only
+          description: Username contains letters only
         password:
           maxLength: 10
           minLength: 5
-          description: password conatins at least one number and one special char
+          description: Password contains at least one number and one special character
           format: password
       example:
         username: my_name
@@ -196,35 +346,149 @@ components:
       properties:
         id:
           type: integer
-          description: recipe identifier
+          description: Recipe identifier
           example: 102
         title:
           type: string
-          description: recipe name
+          description: Recipe name
           example: Simple Macaroni and Cheese
         image:
           type: string
-          description: recipe image
-          format: URL
+          description: Recipe image URL
           example: https://spoonacular.com/recipeimages/655455-566x370.jpg
         readyInMinutes:
           type: integer
-          description: the time takes to make this recipe
+          description: Time it takes to make this recipe
           example: 45
         popularity:
           type: integer
-          description: how many likes got this recipe
+          description: Number of likes this recipe has received
           example: 5987
         vegetarian:
           type: boolean
-          description: indication if the recipe is vegetarian
+          description: Indication if the recipe is vegetarian
           example: false
         vegan:
           type: boolean
-          description: indication if the recipe is vegan
+          description: Indication if the recipe is vegan
           example: false
         glutenFree:
           type: boolean
-          description: indication if the recipe is gluten free
+          description: Indication if the recipe is gluten-free
           example: false
-  
+    RecipeFullView:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Recipe identifier
+          example: 102
+        title:
+          type: string
+          description: Recipe name
+          example: Simple Macaroni and Cheese
+        image:
+          type: string
+          description: Recipe image URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        readyInMinutes:
+          type: integer
+          description: Time it takes to make this recipe
+          example: 45
+        popularity:
+          type: integer
+          description: Number of likes this recipe has received
+          example: 5987
+        vegetarian:
+          type: boolean
+          description: Indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: Indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: Indication if the recipe is gluten-free
+          example: false
+        ingredients:
+          type: array
+          description: List of ingredients
+          items:
+            $ref: '#/components/schemas/Recipe_ingredients'
+        instructions:
+          type: string
+          description: Step-by-step preparation instructions
+          example: "<p>Prepare the crab cakes:</p><ol><li>Cook onion and celery in 4 tablespoons butter over moderately low heat, until tender and transfer to a bowl. Stir in crab and bread crumbs.</li><li>In a small bowl whisk together mayonnaise, seafood seasoning, Worcestershire sauce, hot sauce, parsley, and salt and pepper to taste and stir into crab mixture until combined well.</li><li>Line a baking sheet with wax paper. Form crab mixture into 6 flattened rounds. Chill crab cakes, covered with plastic wrap, at least 1 hour.</li><li>Heat 1 tablespoon butter over moderate heat until foam subsides and cook half of crab cakes until golden brown, about 2 to 3 minutes on each side. Cook remaining cakes in remaining tablespoon butter in same manner.</li></ol><p>Prepare Knorr Hollandaise Sauce according to package instructions.</p><p>Poach the eggs:</p><ol><li>Fill a medium sized sauce pan half way with water. Add 1/2 teaspoon of white vinegar (this is optional but the vinegar helps hold the egg together). Bring to a gentle boil and carefully add eggs (1-2 at a time works best). Poach eggs for 2-3 minutes or until yolk has set to your preference. Remove eggs one at a time with a slotted spoon.</li><li>Assemble: Layer ingredients as follows: English muffin, crab cakes (1 each muffin), eggs, Hollandaise sauce.</li></ol>"
+          items:
+            type: string
+        servings:
+          type: integer
+          description: Number of servings
+          example: 4
+    MyRecipeFullView:
+      type: object
+      properties:
+        username:
+          maxLength: 8
+          minLength: 3
+          type: string
+          description: Username contains letters only
+        title:
+          type: string
+          description: Recipe name
+          example: Simple Macaroni and Cheese
+        image:
+          type: string
+          description: Recipe image URL
+          example: https://spoonacular.com/recipeimages/655455-566x370.jpg
+        readyInMinutes:
+          type: integer
+          description: Time it takes to make this recipe
+          example: 45
+        vegetarian:
+          type: boolean
+          description: Indication if the recipe is vegetarian
+          example: false
+        vegan:
+          type: boolean
+          description: Indication if the recipe is vegan
+          example: false
+        glutenFree:
+          type: boolean
+          description: Indication if the recipe is gluten-free
+          example: false
+        ingredients:
+          type: array
+          description: List of ingredients
+          items:
+            $ref: '#/components/schemas/Recipe_ingredients'
+        instructions:
+          type: string
+          description: Step-by-step preparation instructions
+          example: "<p>Prepare the crab cakes:</p><ol><li>Cook onion and celery in 4 tablespoons butter over moderately low heat, until tender and transfer to a bowl. Stir in crab and bread crumbs.</li><li>In a small bowl whisk together mayonnaise, seafood seasoning, Worcestershire sauce, hot sauce, parsley, and salt and pepper to taste and stir into crab mixture until combined well.</li><li>Line a baking sheet with wax paper. Form crab mixture into 6 flattened rounds. Chill crab cakes, covered with plastic wrap, at least 1 hour.</li><li>Heat 1 tablespoon butter over moderate heat until foam subsides and cook half of crab cakes until golden brown, about 2 to 3 minutes on each side. Cook remaining cakes in remaining tablespoon butter in same manner.</li></ol><p>Prepare Knorr Hollandaise Sauce according to package instructions.</p><p>Poach the eggs:</p><ol><li>Fill a medium sized sauce pan half way with water. Add 1/2 teaspoon of white vinegar (this is optional but the vinegar helps hold the egg together). Bring to a gentle boil and carefully add eggs (1-2 at a time works best). Poach eggs for 2-3 minutes or until yolk has set to your preference. Remove eggs one at a time with a slotted spoon.</li><li>Assemble: Layer ingredients as follows: English muffin, crab cakes (1 each muffin), eggs, Hollandaise sauce.</li></ol>"
+          items:
+            type: string
+        servings:
+          type: integer
+          description: Number of servings
+          example: 4
+    users_favorites_body:
+      type: object
+      properties:
+        recipeId:
+          type: string
+          description: Recipe's id which the user saved
+          example: "716429"
+    Recipe_ingredients:
+      type: object
+      properties:
+        original:
+          type: string
+          description: Ingredient name and quantity
+          example: 200g Cheese
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      name: session
+      in: cookie
