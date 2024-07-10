@@ -25,8 +25,6 @@ router.get("/search", async (req, res, next) => {
  */
 router.get("/previewRecipe/:recipeId", async (req, res, next) => {
   try {
-    console.log("get previewRecipe");
-    console.log("req.params.recipeId:", req.params.recipeId);
     const recipe = await recipes_utils.getRecipeDetails(req.params.recipeId);
     res.send(recipe);
   } catch (error) {
