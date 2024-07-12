@@ -23,7 +23,8 @@
     "mssql": "^6.2.0",
     "mysql2": "^3.10.2",
     "nodemon": "^2.0.4",
-    "pg": "^8.2.1"
+    "pg": "^8.2.1",
+    "vue-cookies": "^1.8.4"
   },
   "devDependencies": {
     "mysql": "^2.18.1"

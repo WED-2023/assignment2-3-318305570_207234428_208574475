@@ -28,8 +28,6 @@ router.post('/favorites', async (req,res,next) => {
   try{
     const username = req.session.username;
     const recipe_id = req.body.recipeId;
-    console.log("username:", username);
-    console.log("recipe_id:", recipe_id);
     await user_utils.markAsFavorite(username,recipe_id);
     res.status(200).send("The Recipe successfully saved as favorite");
     } catch(error){
@@ -43,6 +41,7 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
     const username = req.session.username;
+    console.log("username:", username);
     let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(username);
     let recipes_id_array = [];

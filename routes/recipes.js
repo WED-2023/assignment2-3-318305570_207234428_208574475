@@ -49,7 +49,7 @@ router.get("/fullRecipe/:recipeId", async (req, res, next) => {
  */
 router.get("/random", async (req, res, next) => {
   try {
-    const limit = req.params.limit || 3;
+    const limit = req.params.limit || 6;
     const recipe = await recipes_utils.randomRecipes(limit);
     res.send(recipe);
   } 
