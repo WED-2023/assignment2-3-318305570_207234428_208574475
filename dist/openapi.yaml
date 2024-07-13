@@ -104,7 +104,7 @@ paths:
           description: User is not authorized
       security:
       - cookieAuth: []
-  /users/recipes:
+  /users/myrecipes/preview:
     get:
       tags:
       - Users
@@ -123,6 +123,7 @@ paths:
           description: User is not authorized
       security:
       - cookieAuth: []
+  /users/recipes:
     post:
       tags:
       - Users
@@ -137,6 +138,32 @@ paths:
       responses:
         "201":
           description: A new recipe has been added to user's recipes
+        "401":
+          description: User is not authorized
+      security:
+      - cookieAuth: []
+   /users/myrecipes/fullview:
+    get:
+      tags:
+      - Users
+      summary: Return the user's specific recipe
+      description: Get a specific recipe that was created by a specific user
+      parameters:
+      - name: recipeTitle
+        in: query
+        description: Title of the recipe
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Data about the user's specific recipe returned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MyRecipeFullView'
         "401":
           description: User is not authorized
       security:
