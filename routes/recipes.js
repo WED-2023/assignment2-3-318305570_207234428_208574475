@@ -9,7 +9,8 @@ router.get("/", (req, res) => res.send("im here"));
  */
 router.get("/search", async (req, res, next) => {
   try {
-    const recipeName = req.query.recipeName;
+    console.log("get search");
+    const recipeName = req.query.query;
     const cuisine = req.query.cuisine;
     const diet = req.query.diet;
     const intolerance = req.query.intolerance;
