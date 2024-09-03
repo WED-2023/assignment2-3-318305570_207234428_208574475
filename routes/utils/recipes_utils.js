@@ -13,10 +13,10 @@ async function getRecipeInformation(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "0239d1c9dda348c6902fdc04c32c40ae"
+            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
         }
     }); 
-    let { id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, instructions, extendedIngredients } = recipe_info.data;
+    let { id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, instructions, extendedIngredients, servings, aggregateLikes } = recipe_info.data;
     return {
         id: id,
         title: title,
@@ -26,7 +26,9 @@ async function getRecipeInformation(recipe_id) {
         vegetarian: vegetarian,
         glutenFree: glutenFree,
         instructions: instructions,
-        extendedIngredients: extendedIngredients   
+        extendedIngredients: extendedIngredients,
+        servings: servings,
+        aggregateLikes: aggregateLikes   
     }
 }
 
@@ -37,7 +39,7 @@ async function getRecipeDetails(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "0239d1c9dda348c6902fdc04c32c40ae"
+            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
         }
     }); 
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
@@ -65,7 +67,7 @@ async function searchRecipe(recipeName, cuisine, diet, intolerance, number, sort
             sort: sort,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "0239d1c9dda348c6902fdc04c32c40ae"
+            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
         }
     });
 
@@ -82,7 +84,7 @@ async function randomRecipes(limit) {
             number: limit,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "0239d1c9dda348c6902fdc04c32c40ae"
+            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
 
         }
     });
