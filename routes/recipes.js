@@ -15,7 +15,8 @@ router.get("/search", async (req, res, next) => {
     const diet = req.query.diet;
     const intolerance = req.query.intolerance;
     const number = req.query.number || 5;
-    const results = await recipes_utils.searchRecipe(recipeName, cuisine, diet, intolerance, number);
+    const sort = req.query.sort;
+    const results = await recipes_utils.searchRecipe(recipeName, cuisine, diet, intolerance, number, sort);
     res.send(results);
   } catch (error) {
     next(error);
