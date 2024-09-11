@@ -9,19 +9,6 @@ async function getFavoriteRecipes(username){
     return recipes_id;
 }
 
-// async function getUsersRecipes(username){
-//     const recipes = await DButils.execQuery(`select * from myRecipes where username='${username}'`);
-//     // For each recipe, query the ingredients and add them to the recipe object
-//     const recipesWithIngredients = await Promise.all(recipes.map(async recipe => {
-//         const ingredients = await DButils.execQuery(`SELECT ingredients FROM myRecipesIngredients WHERE username='${username}' AND title='${recipe.title}'`);
-//         // Map each ingredient to the expected format
-//         recipe.extendedIngredients = ingredients.map(ingredient => ({ original: ingredient.ingredients }));
-        
-//         return recipe;
-//     }));
-//     return recipesWithIngredients;
-// }
-
 async function getUsersRecipes(username) {
     // Query to get the user's recipes
     const recipes = await DButils.execQuery(`SELECT * FROM myRecipes WHERE username='${username}'`);
@@ -41,44 +28,68 @@ async function getUsersRecipes(username) {
   
       // Map each ingredient to the expected format
       recipe.extendedIngredients = ingredients.map(ingredient => ({ original: ingredient.ingredients }));
-  
-      console.log(`Fetched ingredients for recipe ${recipe.title}:`, ingredients);
-      console.log("recipe", recipe);
+
       return recipe;
     }));
     // console.log("ingredients:", recipesWithIngredients);
-    console.log('recipes with all:', recipesWithIngredients);
+    // console.log('recipes with all:', recipesWithIngredients);
     return recipesWithIngredients;
   }
 
-async function getOneUserRecipe(username, title){
-    // Query to get the user's recipes
-    const recipes = await DButils.execQuery(`SELECT * FROM myRecipes WHERE username='${username}' AND title='${title}'`);
+
+  async function getOneUserRecipe(username, title){
+    try { 
+        // Fetch the recipe details
+        console.log("username:", username);
+        console.log("title:", title);
+        const recipe = await DButils.execQuery(`SELECT * FROM myRecipes WHERE username='${username}' AND title='${title}'`);
+        console.log("recipe getOneUserRecipe:", recipe);
+        // Fetch the ingredients
+        const ingredients = await DButils.execQuery(`SELECT ingredients FROM myRecipesIngredients WHERE username='${username}' AND title='${title}'`);
+        console.log("ingredients getOneUserRecipe:", ingredients);
+        // Combine the recipe and ingredients
+        if (recipe.length > 0) {
+          const fullRecipe = {
+            ...recipe[0],
+            extendedIngredients: ingredients.map(i => ({ original: i.ingredients }))
+          };
+          return fullRecipe;
+        } else {
+            return null; // No recipe found
+        }
+      } catch (error) {
+        
+      }
+    }
+
+// async function getOneUserRecipe(username, title){
+//     // Query to get the user's recipes
+//     const recipes = await DButils.execQuery(`SELECT * FROM myRecipes WHERE username='${username}' AND title='${title}'`);
     
-    // For each recipe, query the ingredients and add them to the recipe object
-    const recipesWithIngredients = await Promise.all(recipes.map(async recipe => {
-      const ingredients = await DButils.execQuery(`SELECT ingredients FROM myRecipesIngredients WHERE username='${username}' AND title='${recipe.title}'`);
+//     // For each recipe, query the ingredients and add them to the recipe object
+//     const recipesWithIngredients = await Promise.all(recipes.map(async recipe => {
+//       const ingredients = await DButils.execQuery(`SELECT ingredients FROM myRecipesIngredients WHERE username='${username}' AND title='${recipe.title}'`);
   
-      // Convert integer values to booleans
-      recipe.vegetarian = recipe.vegetarian === 1;
-      recipe.vegan = recipe.vegan === 1;
-      recipe.glutenFree = recipe.glutenFree === 1;
+//       // Convert integer values to booleans
+//       recipe.vegetarian = recipe.vegetarian === 1;
+//       recipe.vegan = recipe.vegan === 1;
+//       recipe.glutenFree = recipe.glutenFree === 1;
   
-      // Remove the original integer fields
-      delete recipe.vegetarian;
-      delete recipe.glutenFree;
+//       // Remove the original integer fields
+//       delete recipe.vegetarian;
+//       delete recipe.glutenFree;
   
-      // Map each ingredient to the expected format
-      recipe.extendedIngredients = ingredients.map(ingredient => ({ original: ingredient.ingredients }));
+//       // Map each ingredient to the expected format
+//       recipe.extendedIngredients = ingredients.map(ingredient => ({ original: ingredient.ingredients }));
   
-      console.log(`Fetched ingredients for recipe ${recipe.title}:`, ingredients);
-      console.log("recipe", recipe);
-      return recipe;
-    }));
-    // console.log("ingredients:", recipesWithIngredients);
-    console.log('recipes with all:', recipesWithIngredients);
-    return recipesWithIngredients;
-}
+//       console.log(`Fetched ingredients for recipe ${recipe.title}:`, ingredients);
+//       console.log("recipe", recipe);
+//       return recipe;
+//     }));
+//     // console.log("ingredients:", recipesWithIngredients);
+//     console.log('recipes with all:', recipesWithIngredients);
+//     return recipesWithIngredients;
+// }
   
 async function createUserRecipe(username, title, image, readyInMinutes, vegetarian, vegan, glutenFree, ingredients, instructions, servings, maxRetries = 3) {
     let attempt = 0;

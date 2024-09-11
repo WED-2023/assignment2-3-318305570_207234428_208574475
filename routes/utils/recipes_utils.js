@@ -13,7 +13,7 @@ async function getRecipeInformation(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
+            apiKey: "8b68550bffec4044a03f51030f42357b"
         }
     }); 
     let { id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, instructions, extendedIngredients, servings, aggregateLikes } = recipe_info.data;
@@ -39,7 +39,7 @@ async function getRecipeDetails(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
+            apiKey: "8b68550bffec4044a03f51030f42357b"
         }
     }); 
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
@@ -67,7 +67,7 @@ async function searchRecipe(recipeName, cuisine, diet, intolerance, number, sort
             sort: sort,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
+            apiKey: "8b68550bffec4044a03f51030f42357b"
         }
     });
 
@@ -84,7 +84,7 @@ async function randomRecipes(limit) {
             number: limit,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "3fcbc1f9aff74521a41d7ef132bec3ce"
+            apiKey: "8b68550bffec4044a03f51030f42357b"
 
         }
     });
