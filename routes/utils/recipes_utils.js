@@ -13,10 +13,10 @@ async function getRecipeInformation(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "a842742ce92b4838932e83ed7cbb1861"
+            apiKey: "b00bf97945af4555a1836c6c735fbf57"
         }
     }); 
-    let { id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, instructions, extendedIngredients } = recipe_info.data;
+    let { id, title, readyInMinutes, image, vegan, vegetarian, glutenFree, instructions, extendedIngredients, servings, aggregateLikes } = recipe_info.data;
     return {
         id: id,
         title: title,
@@ -26,7 +26,9 @@ async function getRecipeInformation(recipe_id) {
         vegetarian: vegetarian,
         glutenFree: glutenFree,
         instructions: instructions,
-        extendedIngredients: extendedIngredients   
+        extendedIngredients: extendedIngredients,
+        servings: servings,
+        aggregateLikes: aggregateLikes   
     }
 }
 
@@ -37,7 +39,7 @@ async function getRecipeDetails(recipe_id) {
             includeNutrition: false,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "a842742ce92b4838932e83ed7cbb1861"
+            apiKey: "b00bf97945af4555a1836c6c735fbf57"
         }
     }); 
     let { id, title, readyInMinutes, image, aggregateLikes, vegan, vegetarian, glutenFree } = recipe_info.data;
@@ -49,11 +51,12 @@ async function getRecipeDetails(recipe_id) {
         image: image,
         vegan: vegan,
         vegetarian: vegetarian,
-        glutenFree: glutenFree,   
+        glutenFree: glutenFree,
+        aggregateLikes: aggregateLikes   
     }
 }
 
-async function searchRecipe(recipeName, cuisine, diet, intolerance, number) {
+async function searchRecipe(recipeName, cuisine, diet, intolerance, number, sort) {
     const response = await axios.get(`${api_domain}/complexSearch`, {
         params: {
             query: recipeName,
@@ -61,9 +64,10 @@ async function searchRecipe(recipeName, cuisine, diet, intolerance, number) {
             diet: diet,
             intolerances: intolerance,
             number: number,
+            sort: sort,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "a842742ce92b4838932e83ed7cbb1861"
+            apiKey: "b00bf97945af4555a1836c6c735fbf57"
 
         }
     });
@@ -74,13 +78,14 @@ async function searchRecipe(recipeName, cuisine, diet, intolerance, number) {
     return recipesDetails;
 }
 
+
 async function randomRecipes(limit) {
     const response = await axios.get(`${api_domain}/random`, {
         params: {
             number: limit,
             //apiKey: process.env.spooncular_apiKey
             // apiKey: "093ccbf0ecfa4b0a8e68366711ced8cf"
-            apiKey: "a842742ce92b4838932e83ed7cbb1861"
+            apiKey: "b00bf97945af4555a1836c6c735fbf57"
 
         }
     });

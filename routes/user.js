@@ -41,13 +41,28 @@ router.post('/favorites', async (req,res,next) => {
 router.get('/favorites', async (req,res,next) => {
   try{
     const username = req.session.username;
-    console.log("username:", username);
-    let favorite_recipes = {};
     const recipes_id = await user_utils.getFavoriteRecipes(username);
     let recipes_id_array = [];
     recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
     const results = await Promise.all(
       recipes_id_array.map((id) => recipe_utils.getRecipeDetails(id)));
+    res.status(200).send(results);
+  } catch(error){
+    next(error); 
+  }
+});
+
+
+/**
+ * This path returns the favorites recipes id that were saved by the logged-in user
+ */
+router.get('/userfavorites', async (req,res,next) => {
+  try{
+    const username = req.session.username;
+    const recipes_id = await user_utils.getFavoriteRecipes(username);
+    let recipes_id_array = [];
+    recipes_id.map((element) => recipes_id_array.push(element.recipe_id)); //extracting the recipe ids into array
+    const results = recipes_id_array;
     res.status(200).send(results);
   } catch(error){
     next(error); 
@@ -73,13 +88,17 @@ router.get('/myrecipes/preview', async (req,res,next) => {
 router.get('/myrecipes/fullview', async (req,res,next) => {
   try{
     const username = req.session.username;
-    const title = req.body.recipeTitle;
+    const title = req.query.recipeTitle;
+    console.log("req.body:", req.query);
+    console.log("recipeTitle:", title);
     const recipes = await user_utils.getOneUserRecipe(username, title);
+    console.log("fetched recipe:", recipes);
     res.status(200).send(recipes);
   } catch(error){
     next(error); 
   }
 });
+
 
 /**
  * This path gets body with recipe parameters and save this recipe in the user's list of the logged-in user
